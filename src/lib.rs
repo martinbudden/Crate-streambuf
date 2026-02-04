@@ -6,3 +6,6 @@
 
 mod stream_buf_reader;
 mod stream_buf_writer;
+
+pub use stream_buf_reader::StreamBufReader;
+pub use stream_buf_writer::StreamBufWriter;
