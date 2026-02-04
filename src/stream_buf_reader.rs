@@ -1,0 +1,246 @@
+#![allow(unused)]
+
+use core::mem;
+use core::ops::Index;
+
+/// Simple deserializer
+pub struct StreamBufReader<'a> {
+    pos: usize,
+    buf: &'a [u8],
+}
+
+/*The 'a notation in Rust is a lifetime parameter that tells the compiler how long a reference remains valid.
+
+It starts with an apostrophe (e.g., 'a, 'b).
+It ensures references don't outlive the data they point to.
+Used in functions, structs, and generics to link the lifetimes of multiple references.
+The name 'a is conventional; you can use others like 'b, but 'a is standard for the first lifetime
+*/
+impl<'a> StreamBufReader<'a> {
+    pub fn new(buf: &'a [u8]) -> Self {
+        Self {
+            pos: 0,
+            //size: buf.len(),
+            buf,
+        }
+    }
+
+    /*pub fn new(buf: &'a [u8], bytes_written: usize) -> Self {
+        Self {
+            pos: 0,
+            size: bytes_written,
+            buf,
+        }
+    }*/
+
+    pub fn get_data(&self) -> &'a [u8] {
+        self.buf
+    }
+
+    pub fn get_data_slice(&self) -> &'a [u8] {
+        &self.buf[..self.pos]
+    }
+
+    pub fn pos(&self) -> usize {
+        self.pos
+    }
+
+    pub fn reset(&mut self) {
+        self.pos = 0;
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.pos == 0
+    }
+
+    pub fn is_full(&self) -> bool {
+        self.pos >= self.buf.len()
+    }
+
+    pub fn bytes_remaining(&self) -> usize {
+        //let rem: isize = self.size as isize - self.pos as isize;
+        let rem: isize = self.buf.len() as isize - self.pos as isize;
+        if rem <= 0 { 0_usize } else { rem as usize }
+    }
+
+    pub fn is_remaining(&self, size: usize) -> bool {
+        if self.pos + size > self.buf.len() {
+            false
+        } else {
+            true
+        }
+    }
+
+    pub fn bytes_read(&self) -> usize {
+        self.pos
+    }
+
+    pub fn advance(&mut self, n: usize) {
+        self.pos = (self.pos + n).min(self.buf.len());
+    }
+
+    pub fn get_ref(&self) -> &[u8] {
+        &self.buf[..self.pos]
+    }
+
+    pub fn at(&self, index: usize) -> u8 {
+        self.buf[index]
+    }
+
+    pub fn read_u8(&mut self) -> u8 {
+        const READ_SIZE: usize = size_of::<u8>();
+        if !self.is_remaining(READ_SIZE) {
+            return 0;
+        }
+        let pos = self.pos;
+        self.advance(READ_SIZE);
+        self.buf[pos]
+    }
+
+    pub fn read_u16(&mut self) -> u16 {
+        const READ_SIZE: usize = size_of::<u16>();
+        if !self.is_remaining(READ_SIZE) {
+            return 0;
+        }
+        let pos = self.pos;
+        self.advance(READ_SIZE);
+        u16::from_le_bytes([self.buf[pos], self.buf[pos + 1]])
+    }
+
+    pub fn read_u32(&mut self) -> u32 {
+        const READ_SIZE: usize = size_of::<u32>();
+        if !self.is_remaining(READ_SIZE) {
+            return 0;
+        }
+        let pos = self.pos;
+        self.advance(READ_SIZE);
+        u32::from_le_bytes([
+            self.buf[pos],
+            self.buf[pos + 1],
+            self.buf[pos + 2],
+            self.buf[pos + 3],
+        ])
+        /*
+        Alternatively:
+        u32::from_le_bytes(self.buf[pos..pos+4].try_into().unwrap())
+        let result = self.buf[pos..pos+4].try_into();
+        match result {
+            Ok(bytes) => { u32::from_le_bytes(bytes) },
+            Err(error) => { 0 },
+        }
+        */
+    }
+
+    pub fn read_u16_big_endian(&mut self) -> u16 {
+        const READ_SIZE: usize = size_of::<u16>();
+        if !self.is_remaining(READ_SIZE) {
+            return 0;
+        }
+        let pos = self.pos;
+        self.advance(READ_SIZE);
+        u16::from_be_bytes([self.buf[pos], self.buf[pos + 1]])
+    }
+
+    pub fn read_u32_big_endian(&mut self) -> u32 {
+        const READ_SIZE: usize = size_of::<u32>();
+        if !self.is_remaining(READ_SIZE) {
+            return 0;
+        }
+        let pos = self.pos;
+        self.advance(READ_SIZE);
+        u32::from_be_bytes([
+            self.buf[pos],
+            self.buf[pos + 1],
+            self.buf[pos + 2],
+            self.buf[pos + 3],
+        ])
+    }
+
+    pub fn read_f32(&mut self) -> f32 {
+        const READ_SIZE: usize = size_of::<f32>();
+        if !self.is_remaining(READ_SIZE) {
+            return 0.0;
+        }
+        let pos = self.pos;
+        self.advance(READ_SIZE);
+        f32::from_le_bytes([
+            self.buf[pos],
+            self.buf[pos + 1],
+            self.buf[pos + 2],
+            self.buf[pos + 3],
+        ])
+    }
+
+    pub fn read(&mut self, dst: &mut [u8]) -> usize {
+        let read_size = dst.len();
+        if !self.is_remaining(read_size) {
+            return 0;
+        }
+        dst.copy_from_slice(&self.buf[self.pos..self.pos + read_size]);
+        self.pos += read_size;
+        read_size
+    }
+}
+
+/// Access StreamBuf component by index
+impl<'a> Index<usize> for StreamBufReader<'a> {
+    type Output = u8;
+    fn index(&self, index: usize) -> &u8 {
+        &self.buf[index]
+    }
+}
+
+#[cfg(any(debug_assertions, test))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn new() {
+        const BUF_SIZE: usize = 64;
+        let mut data = [0u8; BUF_SIZE];
+        let mut sbuf = StreamBufReader::new(&data);
+    }
+
+    #[test]
+    fn stream_buf() {
+        const BUF_SIZE: usize = 256;
+        let mut buf = [0u8; BUF_SIZE];
+        buf.fill(0xFF);
+        buf[0] = 0x0A;
+        buf[1] = 0x1B;
+        buf[2] = 0x2C;
+        buf[3] = 0x3D;
+        buf[4] = 0x4E;
+        buf[5] = 0x5F;
+        buf[6] = 0x60;
+        let mut sbuf_reader = StreamBufReader::new(&buf);
+
+        assert_eq!(0, sbuf_reader.bytes_read());
+        assert_eq!(BUF_SIZE, sbuf_reader.bytes_remaining());
+
+        let v1 = sbuf_reader.read_u8();
+        assert_eq!(0x0A, v1);
+        assert_eq!(1, sbuf_reader.bytes_read());
+        assert_eq!(BUF_SIZE - 1, sbuf_reader.bytes_remaining());
+
+        let v2 = sbuf_reader.read_u16();
+        assert_eq!(0x2C1B, v2);
+        assert_eq!(3, sbuf_reader.bytes_read());
+        assert_eq!(BUF_SIZE - 3, sbuf_reader.bytes_remaining());
+
+        let v3 = sbuf_reader.read_u32();
+        assert_eq!(0x605F4E3D, v3);
+        assert_eq!(7, sbuf_reader.bytes_read());
+        assert_eq!(BUF_SIZE - 7, sbuf_reader.bytes_remaining());
+
+        sbuf_reader.reset();
+        let mut data: [u8; 5] = [0; 5];
+        let len = sbuf_reader.read(&mut data);
+        assert_eq!(5, len);
+        assert_eq!(0x0A, data[0]);
+        assert_eq!(0x1B, data[1]);
+        assert_eq!(0x2C, data[2]);
+        assert_eq!(0x3D, data[3]);
+        assert_eq!(0x4E, data[4]);
+    }
+}
