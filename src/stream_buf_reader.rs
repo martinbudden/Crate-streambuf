@@ -2,7 +2,6 @@
 
 use core::mem;
 use core::ops::Index;
-
 /// Simple deserializer
 pub struct StreamBufReader<'a> {
     pos: usize,
@@ -87,6 +86,17 @@ impl<'a> StreamBufReader<'a> {
         self.buf[index]
     }
 
+    /// Return a u8 read from the stream_buf.
+    /// ```
+    /// # use streambuf::StreamBufReader;
+    ///
+    /// let buf = [0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f, 0x60];
+    /// let mut sbuf_reader = StreamBufReader::new(&buf);
+    ///
+    /// let v = sbuf_reader.read_u8();
+    ///
+    /// assert_eq!(0x0a, v);
+    /// ```
     pub fn read_u8(&mut self) -> u8 {
         const READ_SIZE: usize = size_of::<u8>();
         if !self.is_remaining(READ_SIZE) {
@@ -97,6 +107,17 @@ impl<'a> StreamBufReader<'a> {
         self.buf[pos]
     }
 
+    /// Return a u16 read from the stream_buf.
+    /// ```
+    /// # use streambuf::StreamBufReader;
+    ///
+    /// let buf = [0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f, 0x60];
+    /// let mut sbuf_reader = StreamBufReader::new(&buf);
+    ///
+    /// let v = sbuf_reader.read_u16();
+    ///
+    /// assert_eq!(0x1b0a, v);
+    /// ```
     pub fn read_u16(&mut self) -> u16 {
         const READ_SIZE: usize = size_of::<u16>();
         if !self.is_remaining(READ_SIZE) {
@@ -107,6 +128,17 @@ impl<'a> StreamBufReader<'a> {
         u16::from_le_bytes([self.buf[pos], self.buf[pos + 1]])
     }
 
+    /// Return a u32 read from the stream_buf.
+    /// ```
+    /// # use streambuf::StreamBufReader;
+    ///
+    /// let buf = [0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f, 0x60];
+    /// let mut sbuf_reader = StreamBufReader::new(&buf);
+    ///
+    /// let v = sbuf_reader.read_u32();
+    ///
+    /// assert_eq!(0x3d2c1b0a, v);
+    /// ```
     pub fn read_u32(&mut self) -> u32 {
         const READ_SIZE: usize = size_of::<u32>();
         if !self.is_remaining(READ_SIZE) {
@@ -131,6 +163,17 @@ impl<'a> StreamBufReader<'a> {
         */
     }
 
+    /// Return a u16 read from the stream_buf.
+    /// ```
+    /// # use streambuf::StreamBufReader;
+    ///
+    /// let buf = [0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f, 0x60];
+    /// let mut sbuf_reader = StreamBufReader::new(&buf);
+    ///
+    /// let v = sbuf_reader.read_u16_big_endian();
+    ///
+    /// assert_eq!(0x0a1b, v);
+    /// ```
     pub fn read_u16_big_endian(&mut self) -> u16 {
         const READ_SIZE: usize = size_of::<u16>();
         if !self.is_remaining(READ_SIZE) {
@@ -141,6 +184,17 @@ impl<'a> StreamBufReader<'a> {
         u16::from_be_bytes([self.buf[pos], self.buf[pos + 1]])
     }
 
+    /// Return a u16 read from the stream_buf.
+    /// ```
+    /// # use streambuf::StreamBufReader;
+    ///
+    /// let buf = [0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f, 0x60];
+    /// let mut sbuf_reader = StreamBufReader::new(&buf);
+    ///
+    /// let v = sbuf_reader.read_u32_big_endian();
+    ///
+    /// assert_eq!(0x0a1b2c3d, v);
+    /// ```
     pub fn read_u32_big_endian(&mut self) -> u32 {
         const READ_SIZE: usize = size_of::<u32>();
         if !self.is_remaining(READ_SIZE) {
@@ -156,21 +210,40 @@ impl<'a> StreamBufReader<'a> {
         ])
     }
 
+    /// Return an f32 read from the stream_buf.
+    /// ```
+    /// # use streambuf::StreamBufReader;
+    ///
+    /// let buf = [0xec, 0x51, 0x9a, 0x44];
+    /// let mut sbuf_reader = StreamBufReader::new(&buf);
+    ///
+    /// let v = sbuf_reader.read_f32();
+    ///
+    /// assert_eq!(1234.56, v);
+    /// ```
     pub fn read_f32(&mut self) -> f32 {
         const READ_SIZE: usize = size_of::<f32>();
         if !self.is_remaining(READ_SIZE) {
             return 0.0;
         }
-        let pos = self.pos;
-        self.advance(READ_SIZE);
-        f32::from_le_bytes([
-            self.buf[pos],
-            self.buf[pos + 1],
-            self.buf[pos + 2],
-            self.buf[pos + 3],
-        ])
+        let bits = self.read_u32();
+        f32::from_bits(bits)
     }
 
+    /// Read an arrayfrom the stream_buf.
+    /// Return the length read.
+    /// ```
+    /// # use streambuf::StreamBufReader;
+    ///
+    /// let buf = [0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f, 0x60];
+    /// let mut sbuf_reader = StreamBufReader::new(&buf);
+    ///
+    /// let mut data: [u8; 5] = [0; 5];
+    /// let len = sbuf_reader.read(&mut data);
+    ///
+    /// assert_eq!(5, len);
+    /// assert_eq!([0x0a, 0x1b, 0x2c, 0x3d, 0x4e], data);
+    /// ```
     pub fn read(&mut self, dst: &mut [u8]) -> usize {
         let read_size = dst.len();
         if !self.is_remaining(read_size) {
@@ -203,44 +276,53 @@ mod tests {
 
     #[test]
     fn stream_buf() {
-        const BUF_SIZE: usize = 256;
-        let mut buf = [0u8; BUF_SIZE];
-        buf.fill(0xFF);
-        buf[0] = 0x0A;
-        buf[1] = 0x1B;
-        buf[2] = 0x2C;
-        buf[3] = 0x3D;
-        buf[4] = 0x4E;
-        buf[5] = 0x5F;
-        buf[6] = 0x60;
+        let buf = [0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f, 0x60];
+        let buf_size: usize = buf.len();
+        /*buf.fill(0xFF);
+        buf[0] = 0x0a;
+        buf[1] = 0x1b;
+        buf[2] = 0x2c;
+        buf[3] = 0x3d;
+        buf[4] = 0x4e;
+        buf[5] = 0x5f;
+        buf[6] = 0x60;*/
         let mut sbuf_reader = StreamBufReader::new(&buf);
 
+        assert_eq!(0, sbuf_reader.pos());
         assert_eq!(0, sbuf_reader.bytes_read());
-        assert_eq!(BUF_SIZE, sbuf_reader.bytes_remaining());
+        assert_eq!(true, sbuf_reader.is_remaining(buf_size));
+        assert_eq!(buf_size, sbuf_reader.bytes_remaining());
 
         let v1 = sbuf_reader.read_u8();
-        assert_eq!(0x0A, v1);
+        assert_eq!(0x0a, v1);
         assert_eq!(1, sbuf_reader.bytes_read());
-        assert_eq!(BUF_SIZE - 1, sbuf_reader.bytes_remaining());
+        assert_eq!(buf_size - 1, sbuf_reader.bytes_remaining());
 
         let v2 = sbuf_reader.read_u16();
-        assert_eq!(0x2C1B, v2);
+        assert_eq!(0x2c1b, v2);
         assert_eq!(3, sbuf_reader.bytes_read());
-        assert_eq!(BUF_SIZE - 3, sbuf_reader.bytes_remaining());
+        assert_eq!(buf_size - 3, sbuf_reader.bytes_remaining());
 
         let v3 = sbuf_reader.read_u32();
-        assert_eq!(0x605F4E3D, v3);
+        assert_eq!(0x605f4e3d, v3);
         assert_eq!(7, sbuf_reader.bytes_read());
-        assert_eq!(BUF_SIZE - 7, sbuf_reader.bytes_remaining());
+        assert_eq!(buf_size - 7, sbuf_reader.bytes_remaining());
 
         sbuf_reader.reset();
         let mut data: [u8; 5] = [0; 5];
         let len = sbuf_reader.read(&mut data);
         assert_eq!(5, len);
-        assert_eq!(0x0A, data[0]);
-        assert_eq!(0x1B, data[1]);
-        assert_eq!(0x2C, data[2]);
-        assert_eq!(0x3D, data[3]);
-        assert_eq!(0x4E, data[4]);
+        assert_eq!(0x0a, data[0]);
+        assert_eq!(0x1b, data[1]);
+        assert_eq!(0x2c, data[2]);
+        assert_eq!(0x3d, data[3]);
+        assert_eq!(0x4e, data[4]);
+    }
+    #[test]
+    fn read_f32() {
+        let buf = [0xec, 0x51, 0x9a, 0x44];
+        let mut sbuf_reader = StreamBufReader::new(&buf);
+        let v = sbuf_reader.read_f32();
+        assert_eq!(1234.56, v);
     }
 }

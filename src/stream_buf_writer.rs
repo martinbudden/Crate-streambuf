@@ -85,6 +85,17 @@ impl<'a> StreamBufWriter<'a> {
         }
     }
 
+    /// Write a u16 to the streambuf.
+    /// ```
+    /// # use streambuf::StreamBufWriter;
+    /// const BUF_SIZE: usize = 8;
+    /// let mut data = [0u8; BUF_SIZE];
+    /// let mut sbuf_writer = StreamBufWriter::new(&mut data);
+    ///
+    /// sbuf_writer.write_u16(0x0a1b);
+    ///
+    /// assert_eq!([0x1b,0x0a], data[0..2]);
+    /// ```
     pub fn write_u16(&mut self, value: u16) {
         const WRITE_SIZE: usize = size_of::<u16>();
         if self.is_available(WRITE_SIZE) {
@@ -95,6 +106,17 @@ impl<'a> StreamBufWriter<'a> {
         }
     }
 
+    /// Write an u32 to the streambuf.
+    /// ```
+    /// # use streambuf::StreamBufWriter;
+    /// const BUF_SIZE: usize = 8;
+    /// let mut data = [0u8; BUF_SIZE];
+    /// let mut sbuf_writer = StreamBufWriter::new(&mut data);
+    ///
+    /// sbuf_writer.write_u32(0x0a1b2c3d);
+    ///
+    /// assert_eq!([0x3d,0x2c,0x1b,0x0a], data[0..4]);
+    /// ```
     pub fn write_u32(&mut self, value: u32) {
         //let value: u32 = 0x12345678;
         //let bytes: [u8; 4] = value.to_le_bytes(); // [0x78, 0x56, 0x34, 0x12]
@@ -107,6 +129,17 @@ impl<'a> StreamBufWriter<'a> {
         }
     }
 
+    /// Write a u16 to the streambuf, big endian.
+    /// ```
+    /// # use streambuf::StreamBufWriter;
+    /// const BUF_SIZE: usize = 8;
+    /// let mut data = [0u8; BUF_SIZE];
+    /// let mut sbuf_writer = StreamBufWriter::new(&mut data);
+    ///
+    /// sbuf_writer.write_u16_big_endian(0x0a1b);
+    ///
+    /// assert_eq!([0x0a,0x1b], data[0..2]);
+    /// ```
     pub fn write_u16_big_endian(&mut self, value: u16) {
         const WRITE_SIZE: usize = size_of::<u16>();
         if self.is_available(WRITE_SIZE) {
@@ -117,6 +150,17 @@ impl<'a> StreamBufWriter<'a> {
         }
     }
 
+    /// Write an u32 to the streambuf, big endian.
+    /// ```
+    /// # use streambuf::StreamBufWriter;
+    /// const BUF_SIZE: usize = 8;
+    /// let mut data = [0u8; BUF_SIZE];
+    /// let mut sbuf_writer = StreamBufWriter::new(&mut data);
+    ///
+    /// sbuf_writer.write_u32_big_endian(0x0a1b2c3d);
+    ///
+    /// assert_eq!([0x0a,0x1b,0x2c,0x3d], data[0..4]);
+    /// ```
     pub fn write_u32_big_endian(&mut self, value: u32) {
         const WRITE_SIZE: usize = size_of::<u32>();
         if self.is_available(WRITE_SIZE) {
@@ -127,14 +171,20 @@ impl<'a> StreamBufWriter<'a> {
         }
     }
 
+    /// Write an f32 to the streambuf.
+    /// ```
+    /// # use streambuf::StreamBufWriter;
+    /// const BUF_SIZE: usize = 8;
+    /// let mut data = [0u8; BUF_SIZE];
+    /// let mut sbuf_writer = StreamBufWriter::new(&mut data);
+    ///
+    /// sbuf_writer.write_f32(1234.56);
+    ///
+    /// assert_eq!([0xec, 0x51, 0x9a, 0x44], data[0..4]);
+    /// ```
     pub fn write_f32(&mut self, value: f32) {
-        const WRITE_SIZE: usize = size_of::<f32>();
-        if self.is_available(WRITE_SIZE) {
-            value.to_le_bytes().iter().for_each(|&byte| {
-                self.buf[self.pos] = byte;
-                self.pos += 1;
-            });
-        }
+        let bits = value.to_bits().cast_signed();
+        self.write_u32(bits as u32);
     }
 
     pub fn fill_without_advancing(&mut self, data: u8, len: usize) -> bool {
@@ -500,5 +550,12 @@ mod tests {
         let v4 = sbuf_reader.read_f32();
         assert_eq!(3.14159, v4);
         assert_eq!(0, sbuf_reader.bytes_remaining());
+    }
+    #[test]
+    fn write_f32() {
+        let mut data = [0u8; 8];
+        let mut sbuf_writer = StreamBufWriter::new(&mut data);
+        sbuf_writer.write_f32(1234.56);
+        assert_eq!([0xec, 0x51, 0x9a, 0x44], data[0..4]);
     }
 }
