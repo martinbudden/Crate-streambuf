@@ -54,11 +54,7 @@ impl<'a> StreamBufWriter<'a> {
     }
 
     pub fn is_available(&self, size: usize) -> bool {
-        if self.pos + size > self.buf.len() {
-            false
-        } else {
-            true
-        }
+        self.pos + size <= self.buf.len()
     }
 
     pub fn bytes_written(&self) -> usize {

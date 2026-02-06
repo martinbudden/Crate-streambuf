@@ -64,11 +64,7 @@ impl<'a> StreamBufReader<'a> {
     }
 
     pub fn is_remaining(&self, size: usize) -> bool {
-        if self.pos + size > self.buf.len() {
-            false
-        } else {
-            true
-        }
+        self.pos + size <= self.buf.len()
     }
 
     pub fn bytes_read(&self) -> usize {
