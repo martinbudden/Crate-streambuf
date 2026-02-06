@@ -210,6 +210,7 @@ impl<'a> StreamBufWriter<'a> {
     pub fn write_str(&mut self, src: &str) -> usize {
         let write_size = src.len();
         if self.is_available(write_size) {
+            #[allow(clippy::useless_conversion)]
             let result = src.as_bytes().try_into();
             match result {
                 Ok(bytes) => {
