@@ -2,6 +2,7 @@
 
 use core::mem;
 use core::ops::Index;
+
 /// Simple deserializer
 pub struct StreamBufReader<'a> {
     pos: usize,
@@ -230,7 +231,7 @@ impl<'a> StreamBufReader<'a> {
         f32::from_bits(bits)
     }
 
-    /// Read an arrayfrom the stream_buf.
+    /// Read an array from the stream_buf.
     /// Return the length read.
     /// ```
     /// # use streambuf::StreamBufReader;
@@ -318,11 +319,22 @@ mod tests {
         assert_eq!(0x3d, data[3]);
         assert_eq!(0x4e, data[4]);
     }
+
     #[test]
     fn read_f32() {
         let buf = [0xec, 0x51, 0x9a, 0x44];
         let mut sbuf_reader = StreamBufReader::new(&buf);
         let v = sbuf_reader.read_f32();
         assert_eq!(1234.56, v);
+    }
+
+    #[test]
+    fn read() {
+        let buf = [0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f, 0x60];
+        let mut sbuf_reader = StreamBufReader::new(&buf);
+        let mut data: [u8; 5] = [0; 5];
+        let len = sbuf_reader.read(&mut data);
+        assert_eq!(5, len);
+        assert_eq!([0x0a, 0x1b, 0x2c, 0x3d, 0x4e], data);
     }
 }
