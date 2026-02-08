@@ -143,12 +143,7 @@ impl<'a> StreamBufReader<'a> {
         }
         let pos = self.pos;
         self.advance(READ_SIZE);
-        u32::from_le_bytes([
-            self.buf[pos],
-            self.buf[pos + 1],
-            self.buf[pos + 2],
-            self.buf[pos + 3],
-        ])
+        u32::from_le_bytes([self.buf[pos], self.buf[pos + 1], self.buf[pos + 2], self.buf[pos + 3]])
         /*
         Alternatively:
         u32::from_le_bytes(self.buf[pos..pos+4].try_into().unwrap())
@@ -199,12 +194,7 @@ impl<'a> StreamBufReader<'a> {
         }
         let pos = self.pos;
         self.advance(READ_SIZE);
-        u32::from_be_bytes([
-            self.buf[pos],
-            self.buf[pos + 1],
-            self.buf[pos + 2],
-            self.buf[pos + 3],
-        ])
+        u32::from_be_bytes([self.buf[pos], self.buf[pos + 1], self.buf[pos + 2], self.buf[pos + 3]])
     }
 
     /// Return an f32 read from the stream_buf.
