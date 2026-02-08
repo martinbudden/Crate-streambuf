@@ -1,5 +1,5 @@
 [package]
-name = "streambuf"
+name = "stream-buf"
 version = "0.1.0"
 edition = "2024"
 authors = ["Martin Budden"]
