@@ -83,7 +83,7 @@ impl<'a> StreamBufWriter<'a> {
 
     /// Write a u16 to the streambuf.
     /// ```
-    /// # use streambuf::StreamBufWriter;
+    /// # use stream_buf::StreamBufWriter;
     /// const BUF_SIZE: usize = 8;
     /// let mut data = [0u8; BUF_SIZE];
     /// let mut sbuf_writer = StreamBufWriter::new(&mut data);
@@ -104,7 +104,7 @@ impl<'a> StreamBufWriter<'a> {
 
     /// Write an u32 to the streambuf.
     /// ```
-    /// # use streambuf::StreamBufWriter;
+    /// # use stream_buf::StreamBufWriter;
     /// const BUF_SIZE: usize = 8;
     /// let mut data = [0u8; BUF_SIZE];
     /// let mut sbuf_writer = StreamBufWriter::new(&mut data);
@@ -127,7 +127,7 @@ impl<'a> StreamBufWriter<'a> {
 
     /// Write a u16 to the streambuf, big endian.
     /// ```
-    /// # use streambuf::StreamBufWriter;
+    /// # use stream_buf::StreamBufWriter;
     /// const BUF_SIZE: usize = 8;
     /// let mut data = [0u8; BUF_SIZE];
     /// let mut sbuf_writer = StreamBufWriter::new(&mut data);
@@ -148,7 +148,7 @@ impl<'a> StreamBufWriter<'a> {
 
     /// Write an u32 to the streambuf, big endian.
     /// ```
-    /// # use streambuf::StreamBufWriter;
+    /// # use stream_buf::StreamBufWriter;
     /// const BUF_SIZE: usize = 8;
     /// let mut data = [0u8; BUF_SIZE];
     /// let mut sbuf_writer = StreamBufWriter::new(&mut data);
@@ -169,7 +169,7 @@ impl<'a> StreamBufWriter<'a> {
 
     /// Write an f32 to the streambuf.
     /// ```
-    /// # use streambuf::StreamBufWriter;
+    /// # use stream_buf::StreamBufWriter;
     /// const BUF_SIZE: usize = 8;
     /// let mut data = [0u8; BUF_SIZE];
     /// let mut sbuf_writer = StreamBufWriter::new(&mut data);

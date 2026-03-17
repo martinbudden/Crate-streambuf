@@ -85,7 +85,7 @@ impl<'a> StreamBufReader<'a> {
 
     /// Return a u8 read from the stream_buf.
     /// ```
-    /// # use streambuf::StreamBufReader;
+    /// # use stream_buf::StreamBufReader;
     ///
     /// let buf = [0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f, 0x60];
     /// let mut sbuf_reader = StreamBufReader::new(&buf);
@@ -106,7 +106,7 @@ impl<'a> StreamBufReader<'a> {
 
     /// Return a u16 read from the stream_buf.
     /// ```
-    /// # use streambuf::StreamBufReader;
+    /// # use stream_buf::StreamBufReader;
     ///
     /// let buf = [0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f, 0x60];
     /// let mut sbuf_reader = StreamBufReader::new(&buf);
@@ -127,7 +127,7 @@ impl<'a> StreamBufReader<'a> {
 
     /// Return a u32 read from the stream_buf.
     /// ```
-    /// # use streambuf::StreamBufReader;
+    /// # use stream_buf::StreamBufReader;
     ///
     /// let buf = [0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f, 0x60];
     /// let mut sbuf_reader = StreamBufReader::new(&buf);
@@ -157,7 +157,7 @@ impl<'a> StreamBufReader<'a> {
 
     /// Return a u16 read from the stream_buf.
     /// ```
-    /// # use streambuf::StreamBufReader;
+    /// # use stream_buf::StreamBufReader;
     ///
     /// let buf = [0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f, 0x60];
     /// let mut sbuf_reader = StreamBufReader::new(&buf);
@@ -178,7 +178,7 @@ impl<'a> StreamBufReader<'a> {
 
     /// Return a u16 read from the stream_buf.
     /// ```
-    /// # use streambuf::StreamBufReader;
+    /// # use stream_buf::StreamBufReader;
     ///
     /// let buf = [0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f, 0x60];
     /// let mut sbuf_reader = StreamBufReader::new(&buf);
@@ -199,7 +199,7 @@ impl<'a> StreamBufReader<'a> {
 
     /// Return an f32 read from the stream_buf.
     /// ```
-    /// # use streambuf::StreamBufReader;
+    /// # use stream_buf::StreamBufReader;
     ///
     /// let buf = [0xec, 0x51, 0x9a, 0x44];
     /// let mut sbuf_reader = StreamBufReader::new(&buf);
@@ -220,7 +220,7 @@ impl<'a> StreamBufReader<'a> {
     /// Read an array from the stream_buf.
     /// Return the length read.
     /// ```
-    /// # use streambuf::StreamBufReader;
+    /// # use stream_buf::StreamBufReader;
     ///
     /// let buf = [0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f, 0x60];
     /// let mut sbuf_reader = StreamBufReader::new(&buf);
