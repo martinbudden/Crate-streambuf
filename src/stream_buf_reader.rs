@@ -4,19 +4,14 @@ use core::mem;
 use core::ops::Index;
 
 /// Simple deserializer.
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct StreamBufReader<'a> {
     pos: usize,
     buf: &'a [u8],
 }
 
-/*The 'a notation in Rust is a lifetime parameter that tells the compiler how long a reference remains valid.
-
-It starts with an apostrophe (e.g., 'a, 'b).
-It ensures references don't outlive the data they point to.
-Used in functions, structs, and generics to link the lifetimes of multiple references.
-The name 'a is conventional; you can use others like 'b, but 'a is standard for the first lifetime
-*/
 impl<'a> StreamBufReader<'a> {
+    /// Constructor.
     #[must_use]
     pub const fn new(buf: &'a [u8]) -> Self {
         Self {

@@ -13,9 +13,6 @@ categories = [
     "no-std",
 ]
 
-[package.metadata.docs.rs]
-all-features = true
-
 [dependencies]
 
 # see https://doc.rust-lang.org/cargo/reference/profiles.html

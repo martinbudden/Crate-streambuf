@@ -23,7 +23,17 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 
 ### Security
 
-## [0.1.1] - 2023-06-21
+## [0.1.2] - 2026-07-04
+
+### Added
+
+- `deny`s to `lib.rs`.
+
+### Changed
+
+- Updated documentation.
+
+## [0.1.1] - 2026-06-21
 
 ### Added
 
@@ -38,6 +48,6 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 - Removed `katex-header.html`.
 - `allow`s from `lib.rs`.
 
-## [0.1.0] - 2023-04-25
+## [0.1.0] - 2026-04-25
 
 Initial release.

@@ -6,20 +6,15 @@ use core::{
     ops::{Index, IndexMut},
 };
 
-/// Simple serializer/deserializer.
+/// Simple serializer.
+#[derive(Debug, PartialEq)]
 pub struct StreamBufWriter<'a> {
     pos: usize,
     buf: &'a mut [u8],
 }
 
-/*The 'a notation in Rust is a lifetime parameter that tells the compiler how long a reference remains valid.
-
-It starts with an apostrophe (e.g., 'a, 'b).
-It ensures references don't outlive the data they point to.
-Used in functions, structs, and generics to link the lifetimes of multiple references.
-The name 'a is conventional; you can use others like 'b, but 'a is standard for the first lifetime
-*/
 impl<'a> StreamBufWriter<'a> {
+    /// Constructor.
     #[must_use]
     pub const fn new(buf: &'a mut [u8]) -> Self {
         Self { pos: 0, buf }
